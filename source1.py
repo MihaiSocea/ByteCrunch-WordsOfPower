@@ -9,7 +9,6 @@ get_url = f"http://172.18.4.158:8000/get-word"
 status_url = f"http://172.18.4.158:8000/status"
 NUM_ROUNDS = 5
 
-
 word_cost = {
     "Feather": 1, "Coal": 1, "Pebble": 1, "Leaf": 2, "Paper": 2, "Rock": 2,
     "Water": 3, "Twig": 3, "Sword": 4, "Shield": 4, "Gun": 5, "Flame": 5,
@@ -27,7 +26,6 @@ word_cost = {
 }
 
 word_id_map = {word: idx + 1 for idx, word in enumerate(word_cost)}
-
 
 tool_theme = {
     "defense": ["Shield"],
@@ -50,7 +48,7 @@ reaction_theme = {
         "human", "animal", "life", "man", "woman", "child", "creature", "beast", "lion", "bird",
         "tiger", "organism", "flesh", "mammal", "predator", "person", "baby", "boy", "girl", "adult",
         "parent", "people", "body", "soul", "heart", "being", "citizen", "farmer", "worker", "soldier",
-        "villager", "hunter", "native", "family", "friend", "dog", "cat", "fish", "insect", "crossbow"
+        "villager", "hunter", "native", "family", "friend", "dog", "cat", "fish", "insect"
     ],
     "pebble-beatable": [
         "glass", "mirror", "vase", "bottle", "window", "screen", "lens", "tablet", "phone", "cup", "plate"
@@ -145,6 +143,9 @@ reaction_theme = {
 }
 
 
+
+
+
 bind_theme = {
     "disease": ["anti_disease", "healing"],
     "living": ["anti_living"],
@@ -161,12 +162,13 @@ bind_theme = {
     "misery": ["cleaning"],
     "eternal": ["cheapest"],
 
+ 
     "daily_objects": ["breaking", "cleaning"],
     "food": ["cleaning", "cheapest"],
     "transport": ["chaos", "force"],
     "school": ["stability"],
     "noise": ["stability"],
-    "sleep": ["light", "sound"], 
+    "sleep": ["light", "sound"],
     "work": ["stability"]
 }
 
@@ -176,11 +178,11 @@ bind_theme = {
 fallback_theme = ["Time"]
 
 
+
 def what_beats(system_word):
     sys_lower = system_word.lower()
     matched_themes = []
 
-    # Step 1: Check which themes match the system word
     for theme, keywords in reaction_theme.items():
         if any(kw in sys_lower for kw in keywords):
             matched_themes.append(theme)
@@ -188,27 +190,23 @@ def what_beats(system_word):
     print(f"🧠 Matched themes for '{system_word}': {matched_themes}")
 
     candidate_words = []
-
-    # Step 2: Gather tools from matched counter-themes
     for mt in matched_themes:
         counter_categories = bind_theme.get(mt, [])
         for cc in counter_categories:
             candidate_words.extend(tool_theme.get(cc, []))
 
-    # Step 3: If no matches, randomly choose from fallback
     if not candidate_words:
         print("⚠️ No theme match — choosing randomly from fallback options.")
         best = random.choice(fallback_theme)
         print(f"🎯 Fallback response: '{best}' (${word_cost[best]})\n")
         return word_id_map[best]
 
-    # Step 4: Choose cheapest valid word from matched candidates
     valid = [w for w in candidate_words if w in word_cost]
     best = min(valid, key=lambda w: word_cost[w])
     print(f"🎯 Chosen response: '{best}' (${word_cost[best]})\n")
     return word_id_map[best]
 
-# ====================== 🎮 Game Loop ======================
+
 
 def play_game(player_id):
     for round_id in range(1, NUM_ROUNDS + 1):
@@ -216,7 +214,6 @@ def play_game(player_id):
         while round_num != round_id:
             response = requests.get(get_url)
             data = response.json()
-            # print(f"⏳ Waiting for Round {round_id} | Server says: Round {data['round']} - Word: {data['word']}")
             sys_word = data['word']
             round_num = data['round']
             sleep(1)
@@ -233,5 +230,5 @@ def play_game(player_id):
         print("✅ Submission:", response.json())
 
 if __name__ == "__main__":
-    play_game("ePUaEHrl5J") 
+    play_game("ePUaEHrl5J")
 
